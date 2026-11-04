@@ -53,7 +53,7 @@ export default async function AboutPage() {
             Format
           </h2>
           <p>
-            Three-day outdoor community camp at {event?.venueName ?? "Moorsavir Math College Ground, Hubballi"}, subject to venue approval and partner availability.
+            Three-day outdoor community camp at {event?.venue ?? "Moorsavir Math College Ground, Hubballi"}, subject to venue approval and partner availability.
           </p>
         </div>
       </div>
