@@ -20,13 +20,13 @@ export default async function HomePage() {
   const event = await getEvent();
 
   const name = event?.name ?? "SAMANVAYA 2027";
-  const tagline = event?.tagline ?? "United for Health. Together for a Sustainable Future.";
+  const tagline = "United for Health. Together for a Sustainable Future.";
   const description =
     event?.description ??
     "SAMANVAYA 2027 is a community initiative bringing people together to promote preventive healthcare, physical and mental wellness, and environmental sustainability in Hubballi–Dharwad, Karnataka.";
   const startDate = event?.startDate ? formatDate(event.startDate) : "5 February 2027";
   const endDate = event?.endDate ? formatDate(event.endDate) : "7 February 2027";
-  const venue = event?.venueName ?? "Moorsavir Math College Ground, Hubballi";
+  const venue = event?.venue ?? "Moorsavir Math College Ground, Hubballi";
 
   return (
     <>
