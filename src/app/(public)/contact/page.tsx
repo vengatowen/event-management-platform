@@ -35,10 +35,10 @@ export default async function ContactPage() {
               <div>
                 <p className="font-medium text-foreground">Email</p>
                 <a
-                  href={`mailto:${event?.organizerEmail ?? "samanvaya2027@gmail.com"}`}
+                  href="mailto:samanvaya2027@gmail.com"
                   className="text-primary hover:underline"
                 >
-                  {event?.organizerEmail ?? "samanvaya2027@gmail.com"}
+                  samanvaya2027@gmail.com
                 </a>
               </div>
             </div>
@@ -50,10 +50,10 @@ export default async function ContactPage() {
               <div>
                 <p className="font-medium text-foreground">Phone / WhatsApp</p>
                 <a
-                  href={`tel:${event?.organizerPhone ?? "9482169629"}`}
+                  href="tel:9482169629"
                   className="text-primary hover:underline"
                 >
-                  {event?.organizerPhone ?? "9482169629"}
+                  9482169629
                 </a>
               </div>
             </div>
@@ -65,21 +65,11 @@ export default async function ContactPage() {
               <div>
                 <p className="font-medium text-foreground">Venue</p>
                 <p className="text-muted-foreground">
-                  {event?.venueName ?? "Moorsavir Math College Ground, Hubballi"}
+                  {event?.venue ?? "Moorsavir Math College Ground, Hubballi"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {event?.venueAddress ?? "Kamaripeth, New Hubli, Hubballi, Karnataka"}
+                  {event?.city ?? "Hubballi, Karnataka"}
                 </p>
-                {event?.mapsUrl && (
-                  <a
-                    href={event.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline mt-1 inline-block"
-                  >
-                    View on Google Maps →
-                  </a>
-                )}
               </div>
             </div>
           </div>
@@ -89,7 +79,7 @@ export default async function ContactPage() {
               Organising Committee
             </h2>
             <p className="text-muted-foreground text-sm mb-4">
-              {event?.organizerName ?? "SAMANVAYA 2027 Organising Committee"}
+              SAMANVAYA 2027 Organising Committee
             </p>
             <p className="text-sm text-muted-foreground">
               For registration support, stall enquiries, sponsorship, or partnership opportunities, please email or call us. We aim to respond within 1–2 working days.
