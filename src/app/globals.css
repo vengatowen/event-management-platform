@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #1B5E20;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #26A69A;
+  --color-secondary-foreground: #FFFFFF;
+  --color-background: #F8F6F1;
+  --color-foreground: #1A2E1A;
+  --color-muted: #E8E4D9;
+  --color-muted-foreground: #5A6B5A;
+  --color-accent: #81C784;
+  --color-accent-foreground: #1A2E1A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A2E1A;
+  --color-border: #D4CFC0;
+  --color-ring: #1B5E20;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .container-narrow {
+    @apply mx-auto max-w-5xl px-4 sm:px-6;
+  }
+  .section-padding {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+}
