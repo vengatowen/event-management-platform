@@ -1,0 +1,200 @@
+// This is your Prisma schema file for the Event Management Platform
+// Compatible with Neon Serverless PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+// ==================== AUTH & RBAC ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(ATTENDEE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  registrations Registration[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  ORGANIZER
+  ATTENDEE
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ==================== EVENT ====================
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  venue       String?
+  city        String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tickets       TicketType[]
+  sessions      EventSession[]
+  sponsors      Sponsor[]
+  registrations Registration[]
+
+  @@map("events")
+}
+
+model TicketType {
+  id          String   @id @default(cuid())
+  eventId     String
+  name        String
+  description String?
+  price       Decimal  @default(0) @db.Decimal(10, 2)
+  capacity    Int?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+
+  @@map("ticket_types")
+}
+
+model EventSession {
+  id          String   @id @default(cuid())
+  eventId     String
+  title       String
+  description String?  @db.Text
+  startTime   DateTime
+  endTime     DateTime
+  speaker     String?
+  location    String?
+  sortOrder   Int      @default(0)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_sessions")
+}
+
+model Sponsor {
+  id       String  @id @default(cuid())
+  eventId  String
+  name     String
+  logoUrl  String?
+  website  String?
+  tier     String?
+  sortOrder Int    @default(0)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("sponsors")
+}
+
+// ==================== REGISTRATION & TICKETS ====================
+
+model Registration {
+  id                String   @id @default(cuid())
+  eventId           String
+  ticketTypeId      String?
+  userId            String?
+  fullName          String
+  email             String
+  phone             String?
+  organization      String?
+  verificationToken String   @unique @default(cuid())
+  qrCodeData        String?
+  status            RegistrationStatus @default(CONFIRMED)
+  checkedInAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketType TicketType? @relation(fields: [ticketTypeId], references: [id])
+  user       User?       @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, email])
+  @@index([verificationToken])
+  @@map("registrations")
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+}
+
+// ==================== AUDIT ====================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  details   Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
