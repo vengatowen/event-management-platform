@@ -9,11 +9,11 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      roles: string[];
+      role: string;
     } & DefaultSession["user"];
   }
   interface User {
-    roles?: string[];
+    role?: string;
   }
 }
 
@@ -36,14 +36,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
-          include: {
-            roles: {
-              include: { role: true },
-            },
-          },
         });
 
-        if (!user || !user.passwordHash || !user.isActive) return null;
+        if (!user || !user.passwordHash) return null;
 
         const valid = await bcrypt.compare(
           credentials.password as string,
@@ -55,7 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          roles: user.roles.map((r) => r.role.name),
+          role: user.role,
         };
       },
     }),
@@ -64,14 +59,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.roles = (user as any).roles || [];
+        token.role = (user as any).role || "ATTENDEE";
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.roles = (token.roles as string[]) || [];
+        session.user.role = (token.role as string) || "ATTENDEE";
       }
       return session;
     },
@@ -85,8 +80,9 @@ export async function requireRole(roles: string | string[]) {
     throw new Error("Unauthorized");
   }
   const required = Array.isArray(roles) ? roles : [roles];
-  const hasRole = required.some((r) => session.user.roles.includes(r));
-  if (!hasRole && !session.user.roles.includes("SUPER_ADMIN")) {
+  const userRole = session.user.role;
+  const hasRole = required.includes(userRole) || userRole === "SUPER_ADMIN";
+  if (!hasRole) {
     throw new Error("Forbidden");
   }
   return session;
